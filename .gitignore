@@ -47,3 +47,15 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Rmarkdown artifacts
+*.html
+*.pdf
+
+# Workshop artifacts
+standartox_db/
+standartox_query_results/
+data/
+
+# Positron 
+.posit/
