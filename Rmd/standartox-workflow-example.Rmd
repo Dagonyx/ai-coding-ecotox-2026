@@ -117,9 +117,10 @@ If the download was successful, we should now find the files in our local file s
 list.files(file.path(tempdir(), "standartox"))
 ```
 
-You can inspect the structure of the `stxDb` list object further within your RStudio IDE simply via the `View()` command:
+You can inspect the structure of the `stxDb` list object further within your RStudio IDE simply via the `View()` (in R Studio) or via `head()` command:
 ```{r, eval=FALSE}
-View(stxDb) # Works only in RStudio not Positron
+#View(stxDb) # Works only in RStudio not Positron
+head(stxDb)  # Works in both RStudio and Positron
 ```
 
 If you wish to keep the standartox database files permanently on your device, you can specify any directory on your system. This might be useful if you need to work offline (e.g., traveling with Deutsche Bahn XD).
@@ -289,8 +290,8 @@ Let's inspect the query results. How many different `endpoint` and `concentratio
 ```{r, eval=FALSE}
 # The table() function counts occurrences of each value.
 # We then sort the results to see the most common ones first.
-q1$endpoint %>% table() %>% sort(decreasing = TRUE) %>% View()
-q1$concentration_unit %>% table() %>% sort(decreasing = TRUE) %>% View()
+q1$endpoint %>% table() %>% sort(decreasing = TRUE) #%>% View()
+q1$concentration_unit %>% table() %>% sort(decreasing = TRUE) #%>% View()
 ```
 
 We can use our custom plotting function to display the values in a plot
@@ -318,7 +319,7 @@ sum_stats = q1 %>% filter(!is.na(cas), endpoint %in% c("EC50","LC50","NOEC","LOE
     .groups = 'drop') %>% arrange( desc(count) ) %>%
   filter(!is.na(mean_conc))
 
-# Have a look at `sum_stats`. How would you calculate a summary statistic based on 
+# Have a look via `View(sum_stats)`. How would you calculate a summary statistic based on 
 # averaged endpoints for each taxonomic genus? 
 # ... 
 # ...
