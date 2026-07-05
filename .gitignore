@@ -56,6 +56,12 @@ rsconnect/
 standartox_db/
 standartox_query_results/
 data/
+qmd/
+tmp/
+
+# Drop for now - will contain the results of the course
+llm_tasks/
+
 
 # Positron 
 .posit/
