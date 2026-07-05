@@ -1,0 +1,159 @@
+{
+  "title": "Standartox stx_query() SSD Grouping Factors",
+  "purpose": "Factors to filter/aggregate stx_query() output into a per-species SSD dataset for ssdtools SSD fitting (ssd_fit_dists / ssd_hc). The same comparability principles also apply to drc dose-response fitting.",
+  "aggregation_principle": "One value per species per chemical, under a comparable scenario; collapse replicate rows with the geometric mean.",
+  "aggregation_statistic": "geometric_mean",
+  "per_species_key": "tax_taxon",
+  "tiers": [
+    {
+      "tier": 1,
+      "label": "must_match",
+      "description": "Define the SSD universe; filter to a single level, never average across.",
+      "factors": [
+        {
+          "factor": "chemical_substance",
+          "columns": ["cas", "dtxsid"],
+          "rationale": "One SSD describes the sensitivity of species to a single chemical. Use cas as the primary key (clean, no missing) and cross-check dtxsid.",
+          "ssd_relevance": "The dose axis of the fitted distribution must refer to one substance; mixing chemicals makes the fitted parameters and any HC5 meaningless."
+        },
+        {
+          "factor": "endpoint_statistic",
+          "columns": ["endpoint", "endpoint_group"],
+          "rationale": "Effect-concentration endpoints (LC50/EC50 = XX50) must not be pooled with no/lowest-observed endpoints (NOEC/LOEC) or bioconcentration values; they measure different quantities.",
+          "ssd_relevance": "The SSD is a distribution of a single endpoint type across species; a homogeneous endpoint keeps the fitted CDF and derived hazard concentration interpretable."
+        },
+        {
+          "factor": "effect",
+          "columns": ["effect", "measurement"],
+          "rationale": "Different biological responses (mortality vs growth vs reproduction) reflect different sensitivities and should not be averaged together.",
+          "ssd_relevance": "A consistent response basis ensures each species value represents the same phenomenon, so the fitted distribution reflects real inter-species variation, not response heterogeneity."
+        },
+        {
+          "factor": "concentration_basis",
+          "columns": ["concentration_type"],
+          "rationale": "Active ingredient, formulation, total, and dissolved are different dose metrics and must not be mixed within one SSD.",
+          "ssd_relevance": "A single dose basis keeps the concentration axis on one scale, so fitted percentiles refer to a well-defined exposure metric.",
+          "prompt_step": "curation step 4 (allowed_conc_type)",
+          "valid_defaults": {
+            "total": "Dataset-dominant basis for the copper sulphate example (4353 rows); use as the default single basis when active ingredient is sparse.",
+            "active ingredient": "General-preference basis for cross-study consistency, but only 5 rows in this dataset."
+          },
+          "default_choice": "Encoded as a Shiny input (allowed_conc_type); do not hard-code. Offer both 'total' and 'active ingredient' and let the widget pick a single basis per run."
+        },
+        {
+          "factor": "concentration_unit",
+          "columns": ["concentration_unit"],
+          "rationale": "Values must share a common mass/volume basis (e.g. g/l) before any arithmetic; exclude area- or organism-based units (g/m2, g/organism).",
+          "ssd_relevance": "Homogeneous units keep the dose axis meaningful; mixed units produce a nonsensical fitted distribution and invalid HC5."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "label": "should_match",
+      "description": "Test-condition comparability; strongly recommended.",
+      "factors": [
+        {
+          "factor": "exposure_duration_and_class",
+          "columns": ["duration"],
+          "rationale": "Acute and chronic values must not be pooled. Bin to standard windows (e.g. 48/96 h acute) or split acute vs chronic into separate SSDs.",
+          "ssd_relevance": "Duration strongly shifts toxicity; a homogeneous duration class prevents the fitted distribution from being widened by a time confound."
+        },
+        {
+          "factor": "species",
+          "columns": ["tax_taxon"],
+          "rationale": "The SSD x-axis is species; aggregate to one value per tax_taxon. Guard against NA or genus-only rows.",
+          "ssd_relevance": "One value per species avoids pseudo-replication that would distort the fitted distribution and bias the HC5 toward heavily studied species."
+        },
+        {
+          "factor": "taxonomic_trophic_scope",
+          "columns": ["tax_group", "tax_family"],
+          "rationale": "SSDs are usually built within a defined assemblage (e.g. aquatic animals, or fish-only). Handle combined labels such as 'algae || plant'. The SSD prompt further requires a derived taxon_group; see the top-level 'taxon_group_mapping' block for the explicit rules.",
+          "ssd_relevance": "A coherent assemblage keeps the distribution representative of the intended community and its protective threshold.",
+          "prompt_step": "curation step 5 (assign taxon_group)"
+        },
+        {
+          "factor": "exposure_regime_route",
+          "columns": ["exposure"],
+          "rationale": "Aquatic water exposures (static/renewal/flow-through) must not be mixed with oral/dermal routes (gavage, spray, dietary).",
+          "ssd_relevance": "Consistent exposure route ensures comparable delivered dose, so inter-species scatter reflects sensitivity rather than exposure differences.",
+          "prompt_step": "curation step 2 (allowed_exposure)",
+          "default_keep": ["static", "renewal", "flow-through"]
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "label": "optional",
+      "description": "Refinements to use if data density allows; otherwise document.",
+      "factors": [
+        {
+          "factor": "life_stage",
+          "columns": ["organism_lifestage"],
+          "rationale": "Biologically relevant but roughly 47% missing, so often too sparse to group on; may force pooling or a sensitivity check.",
+          "ssd_relevance": "Restricting to a life stage reduces within-species variability but can shrink the dataset below a fittable number of species."
+        },
+        {
+          "factor": "media_salinity",
+          "columns": [],
+          "deferred": true,
+          "rationale": "Freshwater vs marine SSDs are usually separated; not a clean column here and must be derived from tax_group / exposure context. Deferred for the current course task (not applied).",
+          "ssd_relevance": "Media consistency avoids mixing populations that differ systematically in tolerance, keeping the fit representative."
+        },
+        {
+          "factor": "reference_provenance",
+          "columns": ["ref_title", "ref_author", "ref_year"],
+          "rationale": "Not a grouping key, but useful to de-duplicate the same result reported twice and to audit or weight studies.",
+          "ssd_relevance": "De-duplication before aggregation prevents a single study from being counted multiple times and skewing a species' geometric mean.",
+          "prompt_step": "data-quality duplicate check + curation step 7 (slice closest-to-target per species/reference)",
+          "dedup_key": ["tax_taxon", "ref_title", "endpoint", "duration", "concentration"],
+          "slice_key": ["tax_taxon", "ref_title"]
+        }
+      ]
+    }
+  ],
+  "aggregation_group_key": ["cas", "tax_taxon"],
+  "taxon_group_mapping": {
+    "description": "Explicit rules for SSD-prompt curation step 5. Translate directly into a dplyr::case_when(). Standartox exports NO tax_class/tax_order/tax_phylum columns, so the mapping keys on tax_group first, then tax_family for invertebrates. Evaluate rules top to bottom; the first match wins; anything unmatched falls through to 'other'.",
+    "target_groups": ["fish", "crustacean", "insect", "algae", "macrophyte", "amphibian", "mollusk", "rotifer", "other"],
+    "tax_group_rules": [
+      {"when_tax_group_equals": "fish", "assign": "fish"},
+      {"when_tax_group_equals": "amphibia", "assign": "amphibian"},
+      {"when_tax_group_in": ["algae", "algae || plant", "algae || macrophyte"], "assign": "algae"},
+      {"when_tax_group_equals": "macrophyte || plant", "assign": "macrophyte"},
+      {"when_tax_group_equals": "plant", "assign": "other", "note": "Bare 'plant' (10 rows) may not be a rooted aquatic macrophyte; mapped to 'other' per project decision."}
+    ],
+    "invertebrate_family_rules": {
+      "description": "Applied only when tax_group == 'invertebrate'. Match on tax_family; unmatched invertebrate families (annelids, nematodes, echinoderms, cnidarians, ciliates, etc.) fall through to 'other'.",
+      "crustacean": ["Daphniidae", "Penaeidae", "Palaemonidae", "Streptocephalidae", "Hyalellidae", "Atyidae", "Artemiidae", "Cyclopidae", "Parastacidae", "Mysidae", "Gammaridae", "Portunidae", "Cambaridae", "Moinidae", "Acartiidae", "Diaptomidae", "Harpacticidae", "Tisbidae", "Cyprididae", "Asellidae", "Balanidae", "Diogenidae", "Melitidae", "Chydoridae", "Pandalidae", "Thamnocephalidae"],
+      "mollusk": ["Unionidae", "Mytilidae", "Ostreidae", "Mactridae", "Physidae", "Pleuroceridae", "Viviparidae", "Potamididae", "Lymnaeidae", "Hydrobiidae", "Ampullariidae", "Planorbidae", "Dreissenidae", "Corbiculidae", "Tellinidae"],
+      "rotifer": ["Brachionidae", "Philodinidae"],
+      "insect": ["Chironomidae"],
+      "note": "The family lists are representative (derived from the copper sulphate example), not exhaustive. When a new chemical's data introduces unseen families, extend the lists by higher taxon: Crustacea -> crustacean, Mollusca -> mollusk, Rotifera -> rotifer, Insecta -> insect."
+    },
+    "default": "other"
+  },
+  "ssd_prompt_alignment": {
+    "description": "Maps ssd_analysis_prompt.md curation steps to the grouping factor / block they rely on.",
+    "step_2_exposure": "tier2.exposure_regime_route (default_keep = static/renewal/flow-through)",
+    "step_3_effect": "tier1.effect",
+    "step_4_concentration_type": "tier1.concentration_basis (allowed_conc_type widget; total or active ingredient)",
+    "step_5_taxon_group": "taxon_group_mapping (tax_group + invertebrate tax_family)",
+    "step_6_duration_windows": "tier2.exposure_duration_and_class (taxon-specific acute windows in the prompt)",
+    "step_7_slice_and_dedup": "tier3.reference_provenance (slice_key + dedup_key)",
+    "aggregation": "aggregation_statistic + aggregation_group_key (geomean default; min/median offered via Shiny)"
+  },
+  "data_quality_gates": [
+    "Drop -9999 sentinel values in concentration and duration before any calculation.",
+    "Drop physically impossible concentration extremes (unit-conversion artifacts) before aggregation.",
+    "Enforce a single concentration_unit per group (convert or filter to a common basis).",
+    "Decide handling of NA tax_taxon and NA concentration_type before grouping."
+  ],
+  "open_decisions": [
+    "Acute vs chronic: build separate SSDs or one? This drives whether endpoint and duration are filters or facets. (SSD prompt builds a single acute SSD.)",
+    "Assemblage scope: aquatic animals only, fish-only, or whole community? Sets the tax_group filter.",
+    "Concentration basis: choose a single concentration_type per run via the allowed_conc_type widget; 'total' is the dataset-dominant basis here, 'active ingredient' is the general-preference basis where available.",
+    "Life stage: ignore as a grouping factor given ~47% missingness, or restrict to rows where present?",
+    "Aggregation statistic: geometric mean per species (default) vs. minimum (most sensitive) or median (SSD prompt exposes all three)."
+  ]
+}
