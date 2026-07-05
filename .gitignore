@@ -58,10 +58,10 @@ standartox_query_results/
 data/
 tmp/
 
+# Positron 
+.posit/
+
 # Drop for now - will contain the results of the course
 llm_tasks/
 qmd/
 analysis/
-
-# Positron 
-.posit/
