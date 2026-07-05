@@ -7,12 +7,59 @@ output:
     code_folding: show
     toc: true
     toc_float: true
-runtime: shiny
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
 ## Introduction
-Species Sensitivity Distributions (SSD) are a widely used tool in ecotoxicology for assessing the risk of chemicals to various species. This document provides a practical workflow for generating SSDs using R, including data preparation, model fitting, and visualization.
+Species Sensitivity Distributions (SSD) are a widely used tool in ecotoxicology for assessing the risk of chemicals to various species. This document provides a short, self-contained example of the core SSD workflow using the [`ssdtools`](https://bcgov.github.io/ssdtools/) package: prepare data, fit distributions, plot the SSD, and derive a hazard concentration.
+
+We use the built-in `ccme_boron` dataset so the example is fully reproducible. To apply this workflow to your own standartox-derived data, see the custom analysis in student task #04.
 
 ```{r}
-
+# Load packages
+library(ssdtools)
+library(ssddata)
+library(ggplot2)
 ```
+
+## Data
+SSD input is one aggregated toxicity value (e.g. a geometric-mean LC50/EC50) per species, in a single column. In `ccme_boron` that column is `Conc`.
+
+```{r}
+head(ccme_boron)
+```
+
+## Fit distributions
+`ssd_fit_dists()` fits several candidate distributions at once (by default gamma, lgumbel, llogis, lnorm, lnorm_lnorm and weibull).
+
+```{r}
+fits <- ssd_fit_dists(ccme_boron)
+fits
+```
+
+## Compare the fits
+`ssd_gof()` reports goodness-of-fit statistics and model weights. `ssdtools` combines the candidate distributions via model averaging (weighted by these values) rather than relying on a single "best" fit.
+
+```{r}
+ssd_gof(fits, wt = TRUE)
+```
+
+## Plot the SSD
+`ssd_plot_cdf()` draws the model-averaged cumulative distribution together with the observed species data points.
+
+```{r}
+ssd_plot_cdf(fits)
+```
+
+## Hazard concentration
+`ssd_hc()` estimates hazard concentrations from the model-averaged fit. The HC5 is the concentration protective of 95% of species and is a common regulatory benchmark.
+
+```{r}
+ssd_hc(fits, proportion = 0.05)
+```
+
+## Next steps
+For the regulatory BCANZ workflow (a fixed distribution set with bootstrap confidence intervals), use `ssd_fit_bcanz()` together with `ssd_hc_bcanz()`. To run an SSD on your own curated standartox dataset (`data/ssd_dataset.tsv`), follow student task #04.
