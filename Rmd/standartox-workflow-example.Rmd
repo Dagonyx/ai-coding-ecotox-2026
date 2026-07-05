@@ -451,13 +451,16 @@ View(taxa.dt)     # inspect the data table
 colnames(taxa.dt) # this returns all the column names
 
 # List all taxonomic families
-taxa.dt$tax_family %>% table %>% sort(decreasing = T) %>% View
+tx_family = taxa.dt$tax_family %>% table %>% sort(decreasing = T) %>% as.data.frame
+View(tx_family)
 
 # List all taxonomic orders
-taxa.dt$tax_order %>% table %>% sort(decreasing = T) %>% View
+tx_order = taxa.dt$tax_order %>% table %>% sort(decreasing = T) %>% as.data.frame
+View(tx_order)
 
 # List all taxonomic class
-taxa.dt$tax_class %>% table %>% sort(decreasing = T) %>% View
+tx_class = taxa.dt$tax_class %>% table %>% sort(decreasing = T) %>% as.data.frame
+View(tx_class)
 ```
 
 In case you are looking for a something specific you can simply filter the table like this:

@@ -18,10 +18,12 @@ required_packages <- c(
   "readxl",      # reading the .xlsx input
   "stringr",     # string manipulation
   "forcats",     # factor manipulation
+  "ssdtools",     # species sensitivity distribution fitting
   #"tidyr",       # data tidying
   #"purrr",       # functional programming tools
   #"rstudioapi",  # resolving the script directory in RStudio/Positron
   "writexl"      # writing the .xlsx output
+
 )
 
 # Determine which required packages are not yet installed
