@@ -19,6 +19,13 @@ required_packages <- c(
   "stringr",     # string manipulation
   "forcats",     # factor manipulation
   "ssdtools",     # species sensitivity distribution fitting
+  # For reports
+  "janitor",      # data cleaning
+  "kableExtra",   # enhanced tables
+  "here",         # file path management
+  "patchwork",    # combining ggplots
+  "DT",           # interactive tables
+  "plotly",       # interactive plots
   #"tidyr",       # data tidying
   #"purrr",       # functional programming tools
   #"rstudioapi",  # resolving the script directory in RStudio/Positron
