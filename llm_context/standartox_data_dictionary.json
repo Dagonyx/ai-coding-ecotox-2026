@@ -1,0 +1,365 @@
+{
+  "title": "Standartox stx_query() Data Dictionary",
+  "description": "Reference schema for the data.table returned by standartox::stx_query(). Each row is one synthesized ecotoxicological endpoint from a study (e.g. an LC50, EC50, NOEC, LOEC) rather than raw measured data. Standardized from the US EPA ECOTOX knowledgebase. Column value counts and examples below were derived from an example query result ('stxDb', 922,476 rows); the top_values counts are indicative and will vary between queries.",
+  "source_package": "standartox",
+  "source_function": "stx_query()",
+  "row_grain": "One synthesized study endpoint (result value) per row.",
+  "notes": [
+    "Numeric columns 'concentration' and 'duration' use -9999 as a missing-value sentinel; exclude it before any calculation.",
+    "'concentration' contains physically impossible extreme maxima (up to ~4.6e31 g/l) that are unit-conversion artifacts and should be screened out before analysis.",
+    "'_orig' columns hold the originally reported value/unit before standardization; the non-orig columns hold the standardized value/unit.",
+    "'qualifier' and 'duration_unit' are constant in the example extract (single value each) and carry no information.",
+    "top_values shows the top 10 (or fewer) most frequent non-missing values for character columns, with their row counts."
+  ],
+  "columns": [
+    {
+      "name": "cas",
+      "type": "character",
+      "group": "chemical_identity",
+      "description": "CAS Registry Number of the test substance. Primary clean key for identifying a chemical (no missing values in example).",
+      "examples": ["7758-98-7", "2921-88-2", "1912-24-9"],
+      "top_values": {
+        "7758-98-7": 26799, "2921-88-2": 15821, "1912-24-9": 13587,
+        "138261-41-3": 12671, "10108-64-2": 12417, "38641-94-0": 9663,
+        "7733-02-0": 9425, "63-25-2": 8552, "7447-39-4": 8380, "121-75-5": 7523
+      }
+    },
+    {
+      "name": "common_name",
+      "type": "character",
+      "group": "chemical_identity",
+      "description": "Common / trivial name of the substance. Frequently missing (~6.6% NA in example).",
+      "examples": ["Copper sulphate", "chlorpyrifos", "atrazine"],
+      "top_values": {
+        "Copper sulphate": 26799, "chlorpyrifos": 15821, "atrazine": 13587,
+        "imidacloprid": 12671, "Cadmium chloride": 12417,
+        "glyphosate, isopropylamine salt": 9663, "Zinc sulfate": 9425,
+        "carbaryl": 8552, "copper II chloride": 8380, "malathion": 7523
+      }
+    },
+    {
+      "name": "chem_name",
+      "type": "character",
+      "group": "chemical_identity",
+      "description": "Formal / systematic chemical name of the substance.",
+      "examples": ["Sulfuric acid copper(2+) salt (1:1)", "Cadmium chloride (CdCl2)"],
+      "top_values": {
+        "Sulfuric acid copper(2+) salt (1:1)": 26799,
+        "Phosphorothioic acid, O,O-Diethyl O-(3,5,6-trichloro-2-pyridinyl) ester": 15821,
+        "6-Chloro-N-ethyl-N'-(1-methylethyl)-1,3,5-triazine-2,4-diamine": 13587,
+        "(2E)-1-[(6-Chloro-3-pyridinyl)methyl]-N-nitro-2-imidazolidinimine": 12671,
+        "Cadmium chloride (CdCl2)": 12417,
+        "N-(Phosphonomethyl)glycine compd. with 2-propanamine (1:1)": 9663,
+        "Sulfuric acid, Zinc salt (1:1)": 9425,
+        "1-Naphthalenol methylcarbamate": 8552,
+        "Copper chloride (CuCl2)": 8380,
+        "2-[(Dimethoxyphosphinothioyl)thio]butanedioic acid 1,4-diethyl ester": 7523
+      }
+    },
+    {
+      "name": "dtxsid",
+      "type": "character",
+      "group": "chemical_identity",
+      "description": "EPA CompTox DSSTox substance identifier (DTXSID). Some rows missing.",
+      "examples": ["DTXSID6034479", "DTXSID4020458"],
+      "top_values": {
+        "DTXSID6034479": 26799, "DTXSID4020458": 15821, "DTXSID9020112": 13587,
+        "DTXSID5032442": 12671, "DTXSID6020226": 12417, "DTXSID0034649": 9663,
+        "DTXSID2040315": 9425, "DTXSID9020247": 8552, "DTXSID7040449": 8380,
+        "DTXSID4020791": 7523
+      }
+    },
+    {
+      "name": "qualifier",
+      "type": "character",
+      "group": "result_value",
+      "description": "Relational qualifier for the reported concentration (e.g. '=', '<', '>'). Constant '=' in the example extract.",
+      "examples": ["="],
+      "top_values": { "=": 922476 }
+    },
+    {
+      "name": "concentration",
+      "type": "numeric",
+      "group": "result_value",
+      "description": "Standardized effect concentration value, expressed in the units of 'concentration_unit' (predominantly g/l). Uses -9999 as a missing sentinel and contains impossible extreme maxima (unit-conversion artifacts) that must be screened before use.",
+      "summary": {
+        "sentinel_value": -9999,
+        "n_sentinel": 671,
+        "min_excl_sentinel": -0.134624,
+        "median_excl_sentinel": 0.00168127,
+        "max_excl_sentinel": 4.62e31
+      }
+    },
+    {
+      "name": "concentration_unit",
+      "type": "character",
+      "group": "result_value",
+      "description": "Standardized unit of 'concentration'. Mostly mass/volume (g/l), but includes area- and organism-based units that are not directly comparable.",
+      "examples": ["g/l", "ppb", "g/m2"],
+      "top_values": {
+        "g/l": 517739, "ppb": 116545, "g/m2": 106622, "g/g": 96027,
+        "g/g/h": 23657, "l/l": 11484, "l/m2": 8571, "g/organism": 8315,
+        "mol/l": 4923, "g/m3": 3653
+      }
+    },
+    {
+      "name": "concentration_orig",
+      "type": "character",
+      "group": "result_value",
+      "description": "Originally reported concentration value (as a string) prior to standardization.",
+      "examples": ["10", "100", "0.5"],
+      "top_values": {
+        "10": 29807, "100": 27688, "1": 22000, "50": 18685, "5": 15610,
+        "0.5": 13254, "0.1": 12319, "20": 12051, "2": 11431, "1.0": 10948
+      }
+    },
+    {
+      "name": "concentration_unit_orig",
+      "type": "character",
+      "group": "result_value",
+      "description": "Originally reported concentration unit prior to standardization (e.g. ug/L, mg/L, uM, application rates).",
+      "examples": ["ug/L", "mg/L", "ppm"],
+      "top_values": {
+        "ug/L": 219931, "mg/L": 145518, "ppm": 58001, "uM": 45697,
+        "AI kg/ha": 32833, "AI lb/acre": 21154, "mg/kg": 19981,
+        "kg/ha": 18817, "mg/kg bdwt": 17796, "%": 17773
+      }
+    },
+    {
+      "name": "concentration_type",
+      "type": "character",
+      "group": "result_value",
+      "description": "Dose basis of the concentration. Different bases (active ingredient vs formulation vs total vs dissolved) are not interchangeable and should not be averaged together.",
+      "examples": ["active ingredient", "formulation", "total"],
+      "top_values": {
+        "active ingredient": 422693, "formulation": 296550, "total": 177860,
+        "dissolved": 15797, "unionized": 1935, "labile": 1322
+      }
+    },
+    {
+      "name": "duration",
+      "type": "numeric",
+      "group": "duration",
+      "description": "Standardized exposure duration in hours (duration_unit == 'h' throughout). Uses -9999 as a missing sentinel.",
+      "summary": {
+        "sentinel_value": -9999,
+        "n_sentinel": 2095,
+        "unit": "h",
+        "min_excl_sentinel": 0,
+        "median_excl_sentinel": 144,
+        "max_excl_sentinel": 788400
+      }
+    },
+    {
+      "name": "duration_unit",
+      "type": "character",
+      "group": "duration",
+      "description": "Standardized unit of 'duration'. Constant 'h' (hours) in the example extract.",
+      "examples": ["h"],
+      "top_values": { "h": 922476 }
+    },
+    {
+      "name": "duration_orig",
+      "type": "character",
+      "group": "duration",
+      "description": "Originally reported duration value (as a string) prior to standardization to hours.",
+      "examples": ["24", "96", "48"],
+      "top_values": {
+        "24": 88345, "96": 84366, "48": 76624, "7": 43572, "4": 35948,
+        "14": 35471, "21": 33658, "3": 32227, "72": 29628, "2": 25096
+      }
+    },
+    {
+      "name": "duration_unit_orig",
+      "type": "character",
+      "group": "duration",
+      "description": "Originally reported duration unit prior to standardization (d = days, h = hours, wk = weeks, mo = months, mi = minutes, yr = years, hpf/dpf = hours/days post fertilization, dph = days post hatch, ht = ?).",
+      "examples": ["d", "h", "wk"],
+      "top_values": {
+        "d": 410392, "h": 366022, "wk": 76302, "mo": 26548, "mi": 19625,
+        "yr": 6176, "hpf": 3618, "dph": 2946, "dpf": 2367, "ht": 2093
+      }
+    },
+    {
+      "name": "effect",
+      "type": "character",
+      "group": "effect_endpoint",
+      "description": "Broad category of the biological effect measured. Different effect categories represent different sensitivities and should not be pooled for an SSD.",
+      "examples": ["mortality", "population", "growth"],
+      "top_values": {
+        "mortality": 256348, "population": 138024, "biochemistry": 80881,
+        "growth": 72612, "genetics": 60209, "enzyme(s)": 51886,
+        "reproduction": 41892, "accumulation": 38566, "physiology": 27130,
+        "morphology": 27017
+      }
+    },
+    {
+      "name": "measurement",
+      "type": "character",
+      "group": "effect_endpoint",
+      "description": "Fine-grained description of what was measured within an effect category (high cardinality, ~7,000 distinct values).",
+      "examples": ["mortality", "abundance", "residue"],
+      "top_values": {
+        "mortality": 230874, "abundance": 79041, "residue": 37904,
+        "weight": 36516, "biomass": 21603, "survival": 18625, "length": 17785,
+        "immobile": 14758, "population growth rate": 13308,
+        "progeny counts/numbers": 12704
+      }
+    },
+    {
+      "name": "endpoint",
+      "type": "character",
+      "group": "effect_endpoint",
+      "description": "Specific endpoint statistic of the study result. Effect-based (e.g. LC50, EC50) and no/lowest-observed (NOEC/NOEL, LOEC/LOEL) endpoints must not be mixed within an SSD.",
+      "examples": ["LC50", "NOEC", "EC50"],
+      "top_values": {
+        "NOEL": 175806, "NOEC": 157187, "LOEL": 149410, "LC50": 128667,
+        "LOEC": 119208, "EC50": 49639, "BCF": 22075, "NR-LETH": 17053,
+        "NR-ZERO": 13577, "LD50": 13137
+      }
+    },
+    {
+      "name": "endpoint_group",
+      "type": "character",
+      "group": "effect_endpoint",
+      "description": "Higher-level grouping of the endpoint. XX50 = median-effect endpoints (LC50/EC50/etc.), NOEX = no-observed-effect, LOEX = lowest-observed-effect, XX10/XX20/... = other effect percentiles, Bioconc = bioconcentration, XT50 = time-to-effect, MATC = maximum acceptable toxicant concentration. Some rows missing.",
+      "examples": ["XX50", "NOEX", "LOEX"],
+      "top_values": {
+        "NOEX": 331802, "LOEX": 268750, "XX50": 200899, "Bioconc": 26764,
+        "XX10": 10111, "XT50": 10014, "XX90": 6744, "XX25": 5703,
+        "XX20": 4099, "MATC": 3091
+      }
+    },
+    {
+      "name": "exposure",
+      "type": "character",
+      "group": "effect_endpoint",
+      "description": "Exposure regime / route of administration. Aquatic water exposures (static, renewal, flow-through) should not be mixed with oral/dermal routes (gavage, dietary, spray). Some rows missing.",
+      "examples": ["static", "renewal", "flow-through"],
+      "top_values": {
+        "static": 213333, "renewal": 154730, "food": 73749,
+        "environmental: undefined": 63194, "flow-through": 60585,
+        "spray: undefined": 42358, "direct application": 32901,
+        "gavage": 28602, "Spray, hand": 28517, "culture medium": 16860
+      }
+    },
+    {
+      "name": "organism_lifestage",
+      "type": "character",
+      "group": "effect_endpoint",
+      "description": "Life stage of the test organism at exposure. Heavily missing (~47% NA in example), often too sparse to use as a grouping factor.",
+      "examples": ["Adult", "Larva", "Juvenile"],
+      "top_values": {
+        "Adult": 99541, "Larva": 62291, "Juvenile": 59701, "Embryo": 52859,
+        "Seedling": 25979, "Seed": 25910,
+        "Exponential growth phase (log)": 20639, "Neonate": 18108,
+        "Egg": 17539, "Tadpole": 9719
+      }
+    },
+    {
+      "name": "tax_group",
+      "type": "character",
+      "group": "taxonomy",
+      "description": "Broad taxonomic / trophic group of the test organism. Some entries are combined labels (e.g. 'algae || plant', 'macrophyte || plant'). Some rows missing.",
+      "examples": ["invertebrate", "fish", "plant"],
+      "top_values": {
+        "invertebrate": 304679, "fish": 260471, "plant": 116561,
+        "mammalia": 73965, "aves": 32768, "macrophyte || plant": 25218,
+        "amphibia": 23706, "algae": 22982, "algae || plant": 20019,
+        "fungi": 19906
+      }
+    },
+    {
+      "name": "tax_taxon",
+      "type": "character",
+      "group": "taxonomy",
+      "description": "Binomial species name of the test organism. The natural aggregation key for 'one value per species' in SSD construction. Some rows missing.",
+      "examples": ["Danio rerio", "Daphnia magna", "Oncorhynchus mykiss"],
+      "top_values": {
+        "Danio rerio": 58294, "Rattus norvegicus": 41343,
+        "Oncorhynchus mykiss": 33418, "Daphnia magna": 30193,
+        "Pimephales promelas": 21993, "Mus musculus": 16720,
+        "Cyprinus carpio": 13992, "Gallus gallus": 11418,
+        "Apis mellifera": 10566, "Lepomis macrochirus": 8731
+      }
+    },
+    {
+      "name": "tax_genus",
+      "type": "character",
+      "group": "taxonomy",
+      "description": "Genus of the test organism.",
+      "examples": ["Danio", "Daphnia", "Oncorhynchus"],
+      "top_values": {
+        "Danio": 58471, "Rattus": 41711, "Oncorhynchus": 38851,
+        "Daphnia": 34561, "Pimephales": 22229, "Mus": 16880,
+        "Cyprinus": 14475, "Apis": 13979, "Gallus": 12261, "Lepomis": 9594
+      }
+    },
+    {
+      "name": "tax_family",
+      "type": "character",
+      "group": "taxonomy",
+      "description": "Family of the test organism.",
+      "examples": ["Cyprinidae", "Daphniidae", "Salmonidae"],
+      "top_values": {
+        "Cyprinidae": 119631, "Muridae": 61447, "Salmonidae": 48619,
+        "Daphniidae": 40999, "Poaceae": 38293, "Phasianidae": 18006,
+        "Apidae": 16189, "Fabaceae": 14505, "Culicidae": 12455,
+        "Noctuidae": 12103
+      }
+    },
+    {
+      "name": "ref_title",
+      "type": "character",
+      "group": "reference",
+      "description": "Title of the source study / reference. Useful for de-duplication and provenance, not as an SSD grouping key.",
+      "examples": [
+        "Pesticide Ecotoxicity Database (Formerly: Environmental Effects Database (EEDB))",
+        "Water Pollution Studies"
+      ],
+      "top_values": {
+        "Pesticide Ecotoxicity Database (Formerly: Environmental Effects Database (EEDB))": 25297,
+        "Manual of Acute Toxicity: Interpretation and Data Base for 410 Chemicals and 66 Species of Freshwater Animals": 7460,
+        "Using Zebrafish to Screen Developmental Toxicity of Per- and Polyfluoroalkyl Substances (PFAS)": 3159,
+        "Pesticide Ecotoxicity Database: Bee Studies": 2758,
+        "A Freshwater Mesocosm Study into the Effects of the Neonicotinoid Insecticide Thiamethoxam at Multiple Trophic Levels": 2077,
+        "Thirty-One 1,2-bis(Tribromophenoxy)Ethane Studies, Seven Pentabromodiphenyl Oxide Studies and Nine Octabromodiphenyl Oxide Studies with Cover Letter Dated 112888": 1315,
+        "Time-Dependent Behavioral Data from Zebrafish Reveals Novel Signatures of Chemical Toxicity Using Point of Departure Analysis": 960,
+        "Multidimensional In Vivo Hazard Assessment Using Zebrafish": 924,
+        "Prioritization of 10 Organic Flame Retardants Using an Avian Hepatocyte Toxicogenomic Assay": 878,
+        "Water Pollution Studies": 841
+      }
+    },
+    {
+      "name": "ref_author",
+      "type": "character",
+      "group": "reference",
+      "description": "Author(s) of the source study / reference.",
+      "examples": ["U.S. Environmental Protection Agency", "Mayer,F.L.,Jr., and M.R. Ellersieck"],
+      "top_values": {
+        "U.S. Environmental Protection Agency": 26177,
+        "Mayer,F.L.,Jr., and M.R. Ellersieck": 7460,
+        "Britton,K.N., R.S. Judson, B.N. Hill, K.A. Jarema, J.K. Olin, B.R. Knapp, M. Lowery, M. Feshuk, J. Brown, and S. Padill": 3159,
+        "U.S.Environmental Protection Agency": 2758,
+        "Finnegan,M.C., S. Emburey, U. Hommen, L.R. Baxter, P.F. Hoekstra, M.L. Hanson, H. Thompson, and M. Hamer": 2077,
+        "Johnson,B.J.": 1858,
+        "Great Lakes Chem Corp.": 1315,
+        "National Toxicology Program (NTP)": 1307,
+        "Thomas,D.G., H. Shankaran, L. Truong, R.L. Tanguay, and K.M. Waters": 960,
+        "Truong,L., D.M. Reif, L. St Mary, M.C. Geier, H.D. Truong, and R.L. Tanguay": 924
+      }
+    },
+    {
+      "name": "ref_year",
+      "type": "character",
+      "group": "reference",
+      "description": "Publication year of the source study (stored as a string). Observed range 1915-2025.",
+      "examples": ["1992", "2009", "2012"],
+      "top_values": {
+        "1992": 42236, "2009": 29942, "2012": 29358, "2013": 28647,
+        "2018": 27059, "2014": 26519, "2011": 25798, "2008": 24971,
+        "2006": 23760, "2007": 22561
+      }
+    }
+  ]
+}
