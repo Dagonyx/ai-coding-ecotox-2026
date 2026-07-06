@@ -29,8 +29,8 @@ earlier.
 
 1. **Clone the repository** and open it in Positron or RStudio.
 2. **Install dependencies** by sourcing the setup script, which installs the
-   required CRAN packages and the GitHub-only packages `standartox`
-   (`andschar/standartox`) and `drc` (`hreinwald/drc`):
+   required CRAN packages and the GitHub-only packages [standartox](https://github.com/andschar/standartox)
+   (`andschar/standartox`) and [drc](https://github.com/hreinwald/drc) (`hreinwald/drc`):
 
    ```r
    source("R/install_dependencies.R")
